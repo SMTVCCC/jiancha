@@ -6,8 +6,6 @@
 
 **一个智能、高效的托福听写练习与分析工具，旨在帮助托福考生精准定位听写问题，并通过AI智能评语快速提升。**
 
-![系统截图](https://raw.githubusercontent.com/your-username/your-repo/main/screenshot.png)  <!-- 请替换为您的截图链接 -->
-
 ---
 
 ## ✨ 功能亮点

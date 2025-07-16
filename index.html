@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>托福精听比对系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 配置Tailwind自定义颜色和字体 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        error: '#EF4444',
+                        warning: '#F59E0B',
+                        neutral: '#64748B',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .transition-height {
+                transition: max-height 0.3s ease-in-out;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-headphones text-primary text-2xl"></i>
+                <h1 class="text-[clamp(1.25rem,3vw,1.75rem)] font-bold text-gray-800">托福精听比对系统</h1>
+            </div>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="#" id="help-link" class="text-gray-600 hover:text-primary transition-colors duration-200">
+                    <i class="fa fa-question-circle mr-1"></i>使用帮助
+                </a>
+                <a href="#" id="history-link" class="text-gray-600 hover:text-primary transition-colors duration-200">
+                    <i class="fa fa-history mr-1"></i>历史记录
+                </a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-btn" class="text-gray-600 hover:text-primary focus:outline-none">
+                    <i class="fa fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <a href="#" id="mobile-help-link" class="block py-3 px-4 text-gray-600 hover:bg-gray-50 hover:text-primary">
+                <i class="fa fa-question-circle mr-2"></i>使用帮助
+            </a>
+            <a href="#" id="mobile-history-link" class="block py-3 px-4 text-gray-600 hover:bg-gray-50 hover:text-primary">
+                <i class="fa fa-history mr-2"></i>历史记录
+            </a>
+        </div>
+    </header>
+
+    <!-- 主要内容区 -->
+    <main class="container mx-auto px-4 py-8 flex-grow">
+        <!-- 介绍卡片 -->
+        <div id="instruction-card" class="bg-white rounded-xl shadow-lg p-6 mb-8 transform hover:shadow-xl transition-shadow duration-300 hidden">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                    <i class="fa fa-info-circle text-primary mr-2"></i>使用说明
+                </h2>
+                <button id="close-instruction-btn" class="text-gray-500 hover:text-gray-800">
+                    <i class="fa fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div class="space-y-6">
+                <!-- 基本使用 -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                        <i class="fa fa-play-circle text-primary mr-2"></i>基本使用
+                    </h3>
+                    <p class="text-gray-600 mb-3">
+                        左侧输入您听写的内容，右侧输入听力原文，点击"开始比对"按钮即可查看结果。系统会自动标记：
+                    </p>
+                    <ul class="list-disc list-inside text-gray-600 space-y-1 ml-4">
+                        <li><span class="text-error font-medium">红色文字</span>：拼写错误或遗漏的内容</li>
+                        <li><span class="line-through text-neutral">删除线文字</span>：多出来的内容</li>
+                        <li><span class="text-gray-800">正常文字</span>：正确匹配的内容</li>
+                    </ul>
+                </div>
+
+                <!-- 功能介绍 -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                        <i class="fa fa-cogs text-secondary mr-2"></i>功能介绍
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-blue-50 p-3 rounded-lg border border-blue-100">
+                            <h4 class="font-medium text-blue-800 mb-2 flex items-center">
+                                <i class="fa fa-download mr-2"></i>导出TXT报告
+                            </h4>
+                            <p class="text-sm text-blue-700">将比对结果、统计信息和AI评语导出为TXT文件，方便保存和分享。</p>
+                        </div>
+                        <div class="bg-purple-50 p-3 rounded-lg border border-purple-100">
+                            <h4 class="font-medium text-purple-800 mb-2 flex items-center">
+                                <i class="fa fa-camera mr-2"></i>截图下载
+                            </h4>
+                            <p class="text-sm text-purple-700">一键截图保存比对详情区域，包含统计数据、比对结果和错误分析图表。</p>
+                        </div>
+                        <div class="bg-green-50 p-3 rounded-lg border border-green-100">
+                            <h4 class="font-medium text-green-800 mb-2 flex items-center">
+                                <i class="fa fa-copy mr-2"></i>复制功能
+                            </h4>
+                            <p class="text-sm text-green-700">快速复制比对结果、统计信息或AI评语到剪贴板。</p>
+                        </div>
+                        <div class="bg-orange-50 p-3 rounded-lg border border-orange-100">
+                            <h4 class="font-medium text-orange-800 mb-2 flex items-center">
+                                <i class="fa fa-robot mr-2"></i>AI智能评语
+                            </h4>
+                            <p class="text-sm text-orange-700">基于您的听写表现，AI会提供个性化的学习建议和改进方案。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI评语详细说明 -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                        <i class="fa fa-magic text-purple-600 mr-2"></i>AI评语功能
+                    </h3>
+                    <div class="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-100">
+                        <p class="text-gray-700 mb-3">
+                            AI评语功能由<strong>科大讯飞星火大模型</strong>驱动，为您提供专业的听写分析：
+                        </p>
+                        <ul class="list-disc list-inside text-gray-600 space-y-2 ml-4">
+                            <li><strong>整体表现评价</strong>：基于准确率和错误类型给出综合评价</li>
+                            <li><strong>具体问题分析</strong>：识别您在听写中的主要问题和薄弱环节</li>
+                            <li><strong>改进建议</strong>：提供针对性的学习建议和练习方法</li>
+                            <li><strong>个性化指导</strong>：根据您的错误模式定制专属学习方案</li>
+                        </ul>
+                        <div class="mt-3 p-3 bg-white rounded border border-purple-200">
+                            <p class="text-sm text-purple-700">
+                                <i class="fa fa-magic mr-1"></i>
+                                <strong>自动生成：</strong>完成比对后，AI将自动分析您的听写数据并生成专业评语，无需手动操作。
+                            </p>
+                            <p class="text-sm text-purple-600 mt-2">
+                                <i class="fa fa-lightbulb mr-1"></i>
+                                <strong>手动重新生成：</strong>如需重新生成评语，可点击"生成AI评语"按钮。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快捷键说明 -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                        <i class="fa fa-keyboard-o text-warning mr-2"></i>快捷键
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                            <span class="text-gray-700">开始比对</span>
+                            <kbd class="px-2 py-1 bg-gray-200 rounded text-sm">Ctrl+Enter</kbd>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                            <span class="text-gray-700">复制结果</span>
+                            <kbd class="px-2 py-1 bg-gray-200 rounded text-sm">Ctrl+Shift+C</kbd>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                            <span class="text-gray-700">导出TXT</span>
+                            <kbd class="px-2 py-1 bg-gray-200 rounded text-sm">Ctrl+Shift+E</kbd>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                            <span class="text-gray-700">截图下载</span>
+                            <kbd class="px-2 py-1 bg-gray-200 rounded text-sm">Ctrl+Shift+S</kbd>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                            <span class="text-gray-700">清空内容</span>
+                            <kbd class="px-2 py-1 bg-gray-200 rounded text-sm">Escape</kbd>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">
+                        <i class="fa fa-apple mr-1"></i>Mac用户请使用Cmd键替代Ctrl键
+                    </p>
+                </div>
+            </div>
+            
+
+        </div>
+        
+        <!-- 输入区域 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- 左侧：用户听写内容 -->
+            <div class="bg-white rounded-xl shadow-md p-5 transition-all duration-300 hover:shadow-lg">
+                <label for="user-text" class="block text-lg font-medium text-gray-800 mb-3 flex items-center">
+                    <i class="fa fa-pencil-square-o text-primary mr-2"></i>您的听写内容
+                </label>
+                <div class="relative">
+                    <textarea 
+                        id="user-text" 
+                        class="w-full min-h-[12rem] max-h-[32rem] p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 resize-none overflow-y-auto"
+                        placeholder="请在此输入您听写的内容..."></textarea>
+                    <div class="absolute bottom-3 right-3 text-sm text-gray-500">
+                        <span id="user-word-count">0</span> 个字
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧：听力原文 -->
+            <div class="bg-white rounded-xl shadow-md p-5 transition-all duration-300 hover:shadow-lg">
+                <label for="original-text" class="block text-lg font-medium text-gray-800 mb-3 flex items-center">
+                    <i class="fa fa-file-text-o text-secondary mr-2"></i>听力原文
+                </label>
+                <div class="relative">
+                    <textarea 
+                        id="original-text" 
+                        class="w-full min-h-[12rem] max-h-[32rem] p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all duration-200 resize-none overflow-y-auto"
+                        placeholder="请在此输入听力原文..."></textarea>
+                    <div class="absolute bottom-3 right-3 text-sm text-gray-500">
+                        <span id="original-word-count">0</span> 个字
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 操作按钮 -->
+        <div class="flex flex-col sm:flex-row gap-3 justify-center mb-8 flex-wrap">
+            <button 
+                id="compare-btn" 
+                class="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 sm:px-8 rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed min-w-[140px]"
+                disabled>
+                <i class="fa fa-exchange mr-2"></i>开始比对
+            </button>
+            <button 
+                id="clear-btn" 
+                class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-6 sm:px-8 rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center min-w-[140px]">
+                <i class="fa fa-trash mr-2"></i>清空内容
+            </button>
+            <button 
+                id="export-btn" 
+                class="bg-secondary hover:bg-secondary/90 text-white font-medium py-3 px-6 sm:px-8 rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hidden min-w-[140px]"
+                disabled>
+                <i class="fa fa-download mr-2"></i>导出TXT
+            </button>
+            <button 
+                id="screenshot-btn" 
+                class="bg-purple-500 hover:bg-purple-600 text-white font-medium py-3 px-6 sm:px-8 rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hidden min-w-[140px]"
+                disabled>
+                <i class="fa fa-camera mr-2"></i>截图下载
+            </button>
+            <button 
+                id="copy-btn" 
+                class="bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-6 sm:px-8 rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hidden min-w-[140px]"
+                disabled>
+                <i class="fa fa-copy mr-2"></i>复制结果
+            </button>
+        </div>
+        
+        <!-- 比对结果 -->
+        <div id="result-section" class="bg-white rounded-xl shadow-md p-6 mb-8 hidden">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fa fa-bar-chart text-warning mr-2"></i>比对结果
+            </h2>
+            
+            <!-- 统计信息 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                    <p class="text-sm text-gray-500 mb-1">总字数（原文）</p>
+                    <p id="stat-original-total" class="text-2xl font-bold text-primary">0</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                    <p class="text-sm text-gray-500 mb-1">正确字数</p>
+                    <p id="stat-correct" class="text-2xl font-bold text-secondary">0</p>
+                </div>
+                <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+                    <p class="text-sm text-gray-500 mb-1">错误/遗漏字数</p>
+                    <p id="stat-errors" class="text-2xl font-bold text-error">0</p>
+                </div>
+                <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                    <p class="text-sm text-gray-500 mb-1">多余字数</p>
+                    <p id="stat-extra" class="text-2xl font-bold text-warning">0</p>
+                </div>
+            </div>
+            
+            <!-- 比对详情 -->
+            <div class="border-t border-gray-200 pt-4">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-lg font-medium text-gray-700">比对详情</h3>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <button id="copy-comparison-btn" class="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-md transition-colors duration-200 flex items-center justify-center">
+                            <i class="fa fa-copy mr-1"></i><span class="hidden sm:inline">复制比对结果</span><span class="sm:hidden">复制比对</span>
+                        </button>
+                        <button id="copy-stats-btn" class="text-sm bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-md transition-colors duration-200 flex items-center justify-center">
+                            <i class="fa fa-chart-bar mr-1"></i><span class="hidden sm:inline">复制统计信息</span><span class="sm:hidden">复制统计</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="comparison-result" class="p-4 bg-gray-50 rounded-lg min-h-[100px] whitespace-pre-wrap leading-relaxed"></div>
+            </div>
+        </div>
+        
+        <!-- 分析报告 -->
+        <div id="analysis-section" class="bg-white rounded-xl shadow-md p-6 hidden">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fa fa-line-chart text-primary mr-2"></i>错误分析
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 错误类型分布 -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-700 mb-3">错误类型分布</h3>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <canvas id="error-type-chart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 常见错误单词 -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-700 mb-3">常见错误单词</h3>
+                    <div class="bg-gray-50 p-4 rounded-lg max-h-[300px] overflow-y-auto">
+                        <ul id="common-errors" class="space-y-2">
+                            <!-- 动态填充 -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- AI评语区域 -->
+        <div id="ai-comment-section" class="bg-white rounded-xl shadow-md p-6 mb-8 hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                    <i class="fa fa-robot text-purple-600 mr-2"></i>AI智能评语
+                </h2>
+                <button 
+                    id="generate-ai-comment-btn" 
+                    class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled>
+                    <i class="fa fa-magic mr-2"></i>生成AI评语
+                </button>
+            </div>
+            
+            <div id="ai-comment-content" class="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg min-h-[120px] border border-purple-100">
+                <div id="ai-comment-loading" class="hidden flex items-center justify-center py-8">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mr-3"></div>
+                    <span class="text-purple-600 font-medium">AI正在分析您的听写情况...</span>
+                </div>
+                <div id="ai-comment-text" class="text-gray-600 leading-relaxed whitespace-pre-wrap">
+                    点击"生成AI评语"按钮，让AI为您的听写表现提供专业的分析和建议。
+                </div>
+            </div>
+            
+            <div class="flex justify-end mt-4 space-x-3">
+                <button 
+                    id="copy-ai-comment-btn" 
+                    class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center disabled:opacity-50 disabled:cursor-not-allowed hidden"
+                    disabled>
+                    <i class="fa fa-copy mr-2"></i>复制评语
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-8 mt-auto">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center justify-center md:justify-start">
+                        <i class="fa fa-headphones text-primary text-xl mr-2"></i>
+                        <span class="font-bold text-lg">托福精听比对系统</span>
+                    </div>
+                    <p class="text-gray-400 text-sm mt-2 text-center md:text-left">助力托福听力练习，提升听写准确性</p>
+                </div>
+                
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <i class="fa fa-question-circle"></i> 帮助中心
+                    </a>
+                    <a href="#" id="contact-us-link" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <i class="fa fa-envelope"></i> 联系我们
+                    </a>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-400 text-sm">
+                &copy;2025 SMT_Vincent｜所有权保留
+            </div>
+        </div>
+    </footer>
+
+    <!-- 引入Chart.js用于数据可视化 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    
+    <!-- 引入CryptoJS用于API认证 -->
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
+    
+    <!-- 引入html2canvas用于截图功能 -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    
+    <!-- 引入星火API模块 -->
+    <script src="spark-api.js"></script>
+    <script src="init-spark.js"></script>
+    
+    <!-- 主脚本 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            const userText = document.getElementById('user-text');
+            const originalText = document.getElementById('original-text');
+            const compareBtn = document.getElementById('compare-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const resultSection = document.getElementById('result-section');
+            const analysisSection = document.getElementById('analysis-section');
+            const comparisonResult = document.getElementById('comparison-result');
+            const userWordCount = document.getElementById('user-word-count');
+            const originalWordCount = document.getElementById('original-word-count');
+            const helpLink = document.getElementById('help-link');
+            const instructionCard = document.getElementById('instruction-card');
+            const closeInstructionBtn = document.getElementById('close-instruction-btn');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileHelpLink = document.getElementById('mobile-help-link');
+            const exportBtn = document.getElementById('export-btn');
+            const screenshotBtn = document.getElementById('screenshot-btn');
+            const copyBtn = document.getElementById('copy-btn');
+            const copyComparisonBtn = document.getElementById('copy-comparison-btn');
+            const copyStatsBtn = document.getElementById('copy-stats-btn');
+            const aiCommentSection = document.getElementById('ai-comment-section');
+            const generateAiCommentBtn = document.getElementById('generate-ai-comment-btn');
+            const aiCommentLoading = document.getElementById('ai-comment-loading');
+            const aiCommentText = document.getElementById('ai-comment-text');
+            const copyAiCommentBtn = document.getElementById('copy-ai-comment-btn');
+            const contactUsLink = document.getElementById('contact-us-link');
+            const historyLink = document.getElementById('history-link');
+            const mobileHistoryLink = document.getElementById('mobile-history-link');
+
+            // 桌面端帮助链接
+            helpLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                instructionCard.classList.toggle('hidden');
+            });
+
+            // 移动端帮助链接
+            mobileHelpLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                instructionCard.classList.toggle('hidden');
+                mobileMenu.classList.add('hidden');
+            });
+
+            // 关闭说明按钮
+            closeInstructionBtn.addEventListener('click', function() {
+                instructionCard.classList.add('hidden');
+            });
+
+            // 移动端菜单切换
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // 点击页面其他地方关闭移动端菜单
+            document.addEventListener('click', function(e) {
+                if (!mobileMenuBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+
+            // 导出功能
+            exportBtn.addEventListener('click', function() {
+                exportResults();
+            });
+            
+            // 截图功能
+            screenshotBtn.addEventListener('click', function() {
+                captureAndDownloadScreenshot();
+            });
+            
+            // 复制功能
+            copyBtn.addEventListener('click', function() {
+                copyAllResults();
+            });
+            
+            // 复制比对结果
+            copyComparisonBtn.addEventListener('click', function() {
+                copyComparisonResults();
+            });
+            
+            // 复制统计信息
+            copyStatsBtn.addEventListener('click', function() {
+                copyStatistics();
+            });
+            
+            // 生成AI评语
+            generateAiCommentBtn.addEventListener('click', function() {
+                generateAIComment();
+            });
+            
+            // 复制AI评语
+            copyAiCommentBtn.addEventListener('click', function() {
+                copyAIComment();
+            });
+            
+            // 联系我们功能
+            contactUsLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                showEmailContact();
+            });
+            
+            // 历史记录功能（桌面端）
+            historyLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                showHistoryFeature();
+            });
+            
+            // 历史记录功能（移动端）
+            mobileHistoryLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                showHistoryFeature();
+                mobileMenu.classList.add('hidden');
+            });
+            
+            // 统计信息元素
+            const statOriginalTotal = document.getElementById('stat-original-total');
+            const statCorrect = document.getElementById('stat-correct');
+            const statErrors = document.getElementById('stat-errors');
+            const statExtra = document.getElementById('stat-extra');
+            
+            // 常见错误单词列表
+            const commonErrorsList = document.getElementById('common-errors');
+            
+            // 自动调整文本框高度的函数
+            function autoResize(textarea) {
+                 textarea.style.height = 'auto';
+                 const minHeight = 192; // 12rem = 192px
+                 const maxHeight = 512; // 32rem = 512px
+                 const newHeight = Math.min(Math.max(textarea.scrollHeight, minHeight), maxHeight);
+                 textarea.style.height = newHeight + 'px';
+             }
+
+            // 监听文本输入，更新字数统计、按钮状态和自动调整高度
+             [userText, originalText].forEach(textarea => {
+                 textarea.addEventListener('input', function() {
+                     updateWordCount();
+                     autoResize(this);
+                 });
+                 
+                 // 初始化高度
+                 autoResize(textarea);
+             });
+            
+            // 更新字数统计
+            function updateWordCount() {
+                const userCount = userText.value.length;
+                const originalCount = originalText.value.length;
+                
+                userWordCount.textContent = userCount;
+                originalWordCount.textContent = originalCount;
+                
+                // 只有当两个文本框都有内容时才启用比对按钮
+                compareBtn.disabled = userCount === 0 || originalCount === 0;
+            }
+            
+            // 清空按钮事件
+            clearBtn.addEventListener('click', function() {
+                userText.value = '';
+                originalText.value = '';
+                updateWordCount();
+                resultSection.classList.add('hidden');
+                analysisSection.classList.add('hidden');
+                aiCommentSection.classList.add('hidden');
+                exportBtn.classList.add('hidden');
+                exportBtn.disabled = true;
+                screenshotBtn.classList.add('hidden');
+                screenshotBtn.disabled = true;
+                copyBtn.classList.add('hidden');
+                copyBtn.disabled = true;
+                generateAiCommentBtn.disabled = true;
+                copyAiCommentBtn.classList.add('hidden');
+                copyAiCommentBtn.disabled = true;
+                // 重置AI评语内容
+                aiCommentText.textContent = '点击"生成AI评语"按钮，让AI为您的听写表现提供专业的分析和建议。';
+            });
+            
+            // 比对按钮事件
+            compareBtn.addEventListener('click', function() {
+                const userInput = userText.value;
+                const originalInput = originalText.value;
+                
+                // 比对文本
+                const result = compareTexts(userInput, originalInput);
+                
+                // 显示结果
+                displayResults(result);
+                
+                // 显示分析
+                displayAnalysis(result);
+                
+                // 显示导出、截图和复制按钮
+                exportBtn.classList.remove('hidden');
+                exportBtn.disabled = false;
+                screenshotBtn.classList.remove('hidden');
+                screenshotBtn.disabled = false;
+                copyBtn.classList.remove('hidden');
+                copyBtn.disabled = false;
+                
+                // 显示AI评语区域并启用生成按钮
+                aiCommentSection.classList.remove('hidden');
+                generateAiCommentBtn.disabled = false;
+                
+                // 自动生成AI评语
+                setTimeout(() => {
+                    generateAIComment();
+                }, 1000); // 延迟1秒后自动生成，让用户先看到比对结果
+                
+                // 首次使用后自动隐藏使用说明
+                const hasUsedBefore = localStorage.getItem('toefl-dictation-used');
+                if (!hasUsedBefore) {
+                    localStorage.setItem('toefl-dictation-used', 'true');
+                    // 延迟3秒后自动隐藏使用说明，给用户时间查看结果
+                    setTimeout(() => {
+                        if (!instructionCard.classList.contains('hidden')) {
+                            instructionCard.classList.add('hidden');
+                            showToast('使用说明已自动隐藏，可点击右上角"使用说明"重新查看', 'info');
+                        }
+                    }, 3000);
+                }
+                
+                // 滚动到结果区域
+                resultSection.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // 文本比对核心函数
+            function compareTexts(userText, originalText) {
+                // 预处理函数，用于移除每行开头的 "讲述人: " 标记
+                const preprocessText = (text) => {
+                    if (!text) return '';
+                    return text.split('\n').map(line => {
+                        // 移除如 "speaker: " 或 "speaker： " (中英文冒号) 的前缀
+                        return line.replace(/^[^:\n]*[:：]\s*/, '');
+                    }).join('\n');
+                };
+
+                // 对两边的文本都进行预处理
+                const processedUserText = preprocessText(userText);
+                const processedOriginalText = preprocessText(originalText);
+
+                // 分词 - 简单处理，按空格和标点分割
+                const tokenize = (text) => {
+                    // 保留标点符号作为独立的token
+                    return text.match(/\w+|[^\w\s]/g) || [];
+                };
+                
+                const userTokens = tokenize(processedUserText);
+                const originalTokens = tokenize(processedOriginalText);
+                
+                // 使用Levenshtein距离算法进行比对
+                // 创建矩阵
+                const matrix = Array(originalTokens.length + 1)
+                    .fill()
+                    .map(() => Array(userTokens.length + 1).fill(0));
+                
+                // 初始化矩阵
+                for (let i = 0; i <= originalTokens.length; i++) {
+                    matrix[i][0] = i;
+                }
+                for (let j = 0; j <= userTokens.length; j++) {
+                    matrix[0][j] = j;
+                }
+                
+                // 填充矩阵
+                for (let i = 1; i <= originalTokens.length; i++) {
+                    for (let j = 1; j <= userTokens.length; j++) {
+                        const cost = originalTokens[i - 1].toLowerCase() === userTokens[j - 1].toLowerCase() ? 0 : 1;
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j] + 1,        // 删除
+                            matrix[i][j - 1] + 1,        // 插入
+                            matrix[i - 1][j - 1] + cost  // 替换
+                        );
+                    }
+                }
+                
+                // 回溯找到比对路径
+                let i = originalTokens.length;
+                let j = userTokens.length;
+                const comparison = [];
+                const errors = {
+                    spelling: 0,
+                    missing: 0,
+                    extra: 0,
+                    totalOriginal: originalTokens.length,
+                    correct: 0,
+                    errorWords: []
+                };
+                
+                while (i > 0 || j > 0) {
+                    if (i > 0 && j > 0 && originalTokens[i - 1].toLowerCase() === userTokens[j - 1].toLowerCase()) {
+                        // 匹配成功
+                        comparison.unshift({
+                            type: 'match',
+                            original: originalTokens[i - 1],
+                            user: userTokens[j - 1]
+                        });
+                        errors.correct++;
+                        i--;
+                        j--;
+                    } else if (i > 0 && (j === 0 || matrix[i - 1][j] <= matrix[i][j - 1])) {
+                        // 原文有，用户缺失
+                        comparison.unshift({
+                            type: 'missing',
+                            original: originalTokens[i - 1],
+                            user: null
+                        });
+                        errors.missing++;
+                        errors.errorWords.push({
+                            original: originalTokens[i - 1],
+                            user: null,
+                            type: 'missing'
+                        });
+                        i--;
+                    } else if (j > 0 && (i === 0 || matrix[i][j - 1] <= matrix[i - 1][j])) {
+                        if (i > 0 && matrix[i][j] === matrix[i - 1][j - 1] + 1) {
+                            // 拼写错误
+                            comparison.unshift({
+                                type: 'spelling',
+                                original: originalTokens[i - 1],
+                                user: userTokens[j - 1]
+                            });
+                            errors.spelling++;
+                            errors.errorWords.push({
+                                original: originalTokens[i - 1],
+                                user: userTokens[j - 1],
+                                type: 'spelling'
+                            });
+                            i--;
+                            j--;
+                        } else {
+                            // 用户多出来的内容
+                            comparison.unshift({
+                                type: 'extra',
+                                original: null,
+                                user: userTokens[j - 1]
+                            });
+                            errors.extra++;
+                            errors.errorWords.push({
+                                original: null,
+                                user: userTokens[j - 1],
+                                type: 'extra'
+                            });
+                            j--;
+                        }
+                    }
+                }
+                
+                return {
+                    comparison,
+                    errors
+                };
+            }
+            
+            // 生成统计信息文本
+            function generateStatisticsText() {
+                const originalTotal = statOriginalTotal.textContent;
+                const correct = statCorrect.textContent;
+                const errors = statErrors.textContent;
+                const extra = statExtra.textContent;
+                const accuracy = ((parseInt(correct) / parseInt(originalTotal)) * 100).toFixed(1);
+                
+                return `📊 统计信息\n` +
+                       `原文总字数: ${originalTotal}\n` +
+                       `✅ 正确字数: ${correct}\n` +
+                       `❌ 错误/遗漏字数: ${errors}\n` +
+                       `➕ 多余字数: ${extra}\n` +
+                       `🎯 准确率: ${accuracy}%`;
+            }
+            
+            // 生成比对结果文本（纯文本格式）
+            function generateComparisonText() {
+                const comparisonText = comparisonResult.textContent;
+                return `📝 比对结果\n${comparisonText}`;
+            }
+            
+            // 复制所有结果
+            function copyAllResults() {
+                const userInput = userText.value;
+                const originalInput = originalText.value;
+                const timestamp = new Date().toLocaleString('zh-CN');
+                
+                const content = `🎧 托福精听比对结果\n` +
+                               `⏰ 时间: ${timestamp}\n\n` +
+                               generateStatisticsText() + '\n\n' +
+                               `📖 您的听写内容\n${userInput}\n\n` +
+                               `📄 听力原文\n${originalInput}\n\n` +
+                               generateComparisonText();
+                
+                copyToClipboard(content, '完整结果已复制到剪贴板！');
+            }
+            
+            // 复制比对结果
+            function copyComparisonResults() {
+                const content = generateComparisonText();
+                copyToClipboard(content, '比对结果已复制到剪贴板！');
+            }
+            
+            // 复制统计信息
+            function copyStatistics() {
+                const content = generateStatisticsText();
+                copyToClipboard(content, '统计信息已复制到剪贴板！');
+            }
+            
+            // 复制到剪贴板的通用函数
+            function copyToClipboard(text, successMessage) {
+                navigator.clipboard.writeText(text).then(function() {
+                    showToast(successMessage, 'success');
+                }).catch(function(err) {
+                    // 降级方案：使用传统方法
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        showToast(successMessage, 'success');
+                    } catch (err) {
+                        showToast('复制失败，请手动复制', 'error');
+                    }
+                    document.body.removeChild(textArea);
+                });
+            }
+            
+            // 显示提示消息
+            function showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all duration-300 transform translate-x-full`;
+                
+                // 根据类型设置背景色
+                if (type === 'success') {
+                    toast.className += ' bg-green-500';
+                } else if (type === 'error') {
+                    toast.className += ' bg-red-500';
+                } else if (type === 'info') {
+                    toast.className += ' bg-blue-500';
+                }
+                
+                toast.textContent = message;
+                
+                document.body.appendChild(toast);
+                
+                // 显示动画
+                setTimeout(() => {
+                    toast.classList.remove('translate-x-full');
+                }, 100);
+                
+                // 隐藏动画
+                setTimeout(() => {
+                    toast.classList.add('translate-x-full');
+                    setTimeout(() => {
+                        document.body.removeChild(toast);
+                    }, 300);
+                }, 3000);
+            }
+            
+            // 导出结果功能（TXT格式）
+            function exportResults() {
+                const timestamp = new Date().toLocaleString('zh-CN');
+                
+                let content = '🎧 托福精听比对分析报告\n';
+                content += '=' .repeat(50) + '\n';
+                content += `⏰ 生成时间: ${timestamp}\n\n`;
+                
+                // 统计信息
+                content += '📊 统计信息\n';
+                content += '-'.repeat(30) + '\n';
+                content += `原文总字数: ${statOriginalTotal.textContent}\n`;
+                content += `正确字数: ${statCorrect.textContent}\n`;
+                content += `错误/遗漏字数: ${statErrors.textContent}\n`;
+                content += `多余字数: ${statExtra.textContent}\n`;
+                const accuracy = ((parseInt(statCorrect.textContent) / parseInt(statOriginalTotal.textContent)) * 100).toFixed(1);
+                content += `准确率: ${accuracy}%\n\n`;
+                
+                // 您的听写内容
+                content += '📖 您的听写内容\n';
+                content += '-'.repeat(30) + '\n';
+                content += userText.value + '\n\n';
+                
+                // 听力原文
+                content += '📄 听力原文\n';
+                content += '-'.repeat(30) + '\n';
+                content += originalText.value + '\n\n';
+                
+                // 比对结果
+                content += '🔍 比对结果\n';
+                content += '-'.repeat(30) + '\n';
+                const comparisonText = generateComparisonText();
+                content += comparisonText.replace('📝 比对结果\n', '') + '\n\n';
+                
+                // AI评语（如果有）
+                const aiCommentElement = document.getElementById('ai-comment-text');
+                if (!aiCommentSection.classList.contains('hidden') && 
+                    !copyAiCommentBtn.classList.contains('hidden') && 
+                    aiCommentElement.textContent && 
+                    !aiCommentElement.textContent.includes('点击"生成AI评语"按钮')) {
+                    content += '🤖 AI智能评语\n';
+                    content += '-'.repeat(30) + '\n';
+                    content += aiCommentElement.textContent + '\n\n';
+                }
+                
+                // 说明
+                content += '💡 说明\n';
+                content += '-'.repeat(30) + '\n';
+                content += '- 正常文字：正确\n';
+                content += '- 标红文字：错误或遗漏\n';
+                content += '- 删除线文字：多余内容\n\n';
+                content += '© 2025 SMT_Vincent｜所有权保留\n';
+                
+                // 创建并下载TXT文件
+                const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `托福精听比对报告_${new Date().toISOString().slice(0, 10)}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast('TXT报告已导出！', 'success');
+            }
+            
+            // 截图并下载功能
+            function captureAndDownloadScreenshot() {
+                // 获取要截图的区域（只截图比对详情区域）
+                const captureArea = document.getElementById('result-section');
+                
+                if (!captureArea || captureArea.classList.contains('hidden')) {
+                    showToast('请先进行比对再截图', 'error');
+                    return;
+                }
+                
+                // 显示加载提示
+                showToast('正在生成截图...', 'info');
+                
+                // 使用html2canvas截图
+                html2canvas(captureArea, {
+                    backgroundColor: '#ffffff',
+                    scale: 2, // 提高清晰度
+                    useCORS: true,
+                    allowTaint: true,
+                    scrollX: 0,
+                    scrollY: 0
+                }).then(canvas => {
+                    // 创建下载链接
+                    const link = document.createElement('a');
+                    link.download = `托福精听比对详情_${new Date().toISOString().slice(0, 10)}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    
+                    // 触发下载
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    showToast('比对详情截图已下载！', 'success');
+                }).catch(error => {
+                    console.error('截图失败:', error);
+                    showToast('截图失败，请重试', 'error');
+                });
+            }
+            
+            // 显示比对结果
+            function displayResults(result) {
+                // 清空之前的结果
+                comparisonResult.innerHTML = '';
+                
+                // 构建比对结果HTML
+                result.comparison.forEach(item => {
+                    let span = document.createElement('span');
+                    let text;
+                    
+                    switch (item.type) {
+                        case 'match':
+                            text = item.user;
+                            span.className = 'text-gray-800';
+                            break;
+                        case 'missing':
+                            text = item.original;
+                            span.className = 'text-error font-bold bg-red-50 px-1 rounded';
+                            break;
+                        case 'spelling':
+                            text = item.user;
+                            span.className = 'text-error underline decoration-dotted bg-red-50 px-1 rounded';
+                            // 添加title显示正确单词
+                            span.title = `正确单词: ${item.original}`;
+                            break;
+                        case 'extra':
+                            text = item.user;
+                            span.className = 'text-neutral line-through bg-gray-100 px-1 rounded';
+                            break;
+                    }
+                    
+                    span.textContent = text;
+                    comparisonResult.appendChild(span);
+                    
+                    // 添加空格
+                    const space = document.createTextNode(' ');
+                    comparisonResult.appendChild(space);
+                });
+                
+                // 更新统计信息
+                statOriginalTotal.textContent = result.errors.totalOriginal;
+                statCorrect.textContent = result.errors.correct;
+                statErrors.textContent = result.errors.spelling + result.errors.missing;
+                statExtra.textContent = result.errors.extra;
+                
+                // 显示结果区域
+                resultSection.classList.remove('hidden');
+            }
+            
+            // 显示错误分析
+            function displayAnalysis(result) {
+                // 清空之前的分析
+                commonErrorsList.innerHTML = '';
+                
+                // 显示常见错误单词
+                const topErrors = result.errors.errorWords.slice(0, 10); // 只显示前10个
+                if (topErrors.length > 0) {
+                    topErrors.forEach(error => {
+                        const li = document.createElement('li');
+                        li.className = 'flex flex-col sm:flex-row sm:items-center';
+                        
+                        if (error.type === 'spelling') {
+                            li.innerHTML = `
+                                <span class="text-error">您写的: ${error.user}</span>
+                                <span class="mx-2 hidden sm:inline">→</span>
+                                <span class="text-secondary">正确: ${error.original}</span>
+                            `;
+                        } else if (error.type === 'missing') {
+                            li.innerHTML = `
+                                <span class="text-error">遗漏: ${error.original}</span>
+                            `;
+                        } else if (error.type === 'extra') {
+                            li.innerHTML = `
+                                <span class="text-neutral line-through">多余: ${error.user}</span>
+                            `;
+                        }
+                        
+                        commonErrorsList.appendChild(li);
+                    });
+                } else {
+                    const li = document.createElement('li');
+                    li.textContent = '没有检测到错误，很棒！';
+                    li.className = 'text-secondary text-center';
+                    commonErrorsList.appendChild(li);
+                }
+                
+                // 创建错误类型分布图表
+                const ctx = document.getElementById('error-type-chart').getContext('2d');
+                
+                // 如果已有图表，先销毁
+                if (window.errorChart) {
+                    window.errorChart.destroy();
+                }
+                
+                window.errorChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['拼写错误', '遗漏内容', '多余内容'],
+                        datasets: [{
+                            data: [
+                                result.errors.spelling,
+                                result.errors.missing,
+                                result.errors.extra
+                            ],
+                            backgroundColor: [
+                                '#EF4444', // 红色 - 拼写错误
+                                '#F59E0B', // 黄色 - 遗漏
+                                '#64748B'  // 灰色 - 多余
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+                
+                // 显示分析区域
+                analysisSection.classList.remove('hidden');
+            }
+            
+            // 键盘快捷键支持
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+Enter 或 Cmd+Enter 开始比对
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    if (!compareBtn.disabled) {
+                        compareBtn.click();
+                    }
+                }
+                
+                // Ctrl+Shift+C 或 Cmd+Shift+C 复制结果
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') {
+                    e.preventDefault();
+                    if (!copyBtn.disabled) {
+                        copyBtn.click();
+                    }
+                }
+                
+                // Ctrl+Shift+E 或 Cmd+Shift+E 导出TXT
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'E') {
+                    e.preventDefault();
+                    if (!exportBtn.disabled) {
+                        exportBtn.click();
+                    }
+                }
+                
+                // Ctrl+Shift+S 或 Cmd+Shift+S 截图下载
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'S') {
+                    e.preventDefault();
+                    if (!screenshotBtn.disabled) {
+                        screenshotBtn.click();
+                    }
+                }
+                
+                // Escape 清空内容
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    clearBtn.click();
+                }
+            });
+            
+            // 添加快捷键提示
+            function addKeyboardHints() {
+                compareBtn.title = '快捷键: Ctrl+Enter (Mac: Cmd+Enter)';
+                copyBtn.title = '快捷键: Ctrl+Shift+C (Mac: Cmd+Shift+C)';
+                exportBtn.title = '导出TXT报告 - 快捷键: Ctrl+Shift+E (Mac: Cmd+Shift+E)';
+                screenshotBtn.title = '截图下载 - 快捷键: Ctrl+Shift+S (Mac: Cmd+Shift+S)';
+                clearBtn.title = '快捷键: Escape';
+            }
+            
+            // 生成AI评语功能
+            function generateAIComment() {
+                // 显示加载状态
+                aiCommentLoading.classList.remove('hidden');
+                aiCommentText.classList.add('hidden');
+                generateAiCommentBtn.disabled = true;
+                
+                // 获取比对结果数据
+                const originalTotal = parseInt(statOriginalTotal.textContent);
+                const correct = parseInt(statCorrect.textContent);
+                const errors = parseInt(statErrors.textContent);
+                const extra = parseInt(statExtra.textContent);
+                const accuracy = ((correct / originalTotal) * 100).toFixed(1);
+                
+                // 构建AI分析的prompt
+                const prompt = `请作为一名专业的托福听力教师，分析学生的听写表现并给出建议。
+
+学生听写统计：
+- 原文总字数：${originalTotal}
+- 正确字数：${correct}
+- 错误/遗漏字数：${errors}
+- 多余字数：${extra}
+- 准确率：${accuracy}%
+
+请从以下几个方面给出评价和建议：
+1. 整体表现评价
+2. 具体问题分析
+3. 改进建议
+4. 练习方法推荐
+
+请用温和、鼓励的语气，给出具体可行的建议，字数控制在200-300字。`;
+                
+                // 设置API响应回调
+                if (window.sparkAPI) {
+                    window.sparkAPI.setResponseCallback((message, type, isComplete) => {
+                        if (type === 'error') {
+                            // 错误处理
+                            aiCommentLoading.classList.add('hidden');
+                            aiCommentText.classList.remove('hidden');
+                            aiCommentText.textContent = '抱歉，AI评语生成失败，请稍后再试。错误信息：' + message;
+                            generateAiCommentBtn.disabled = false;
+                        } else if (type === 'assistant') {
+                            // 显示AI回复
+                            aiCommentLoading.classList.add('hidden');
+                            aiCommentText.classList.remove('hidden');
+                            aiCommentText.textContent = message;
+                            
+                            // 如果回复完成，启用复制按钮
+                            if (isComplete) {
+                                generateAiCommentBtn.disabled = false;
+                                copyAiCommentBtn.classList.remove('hidden');
+                                copyAiCommentBtn.disabled = false;
+                            }
+                        }
+                    });
+                    
+                    // 发送消息到AI
+                    window.sparkAPI.sendMessage(prompt);
+                } else {
+                    // API未初始化的错误处理
+                    aiCommentLoading.classList.add('hidden');
+                    aiCommentText.classList.remove('hidden');
+                    aiCommentText.textContent = '抱歉，AI服务暂时不可用，请稍后再试。';
+                    generateAiCommentBtn.disabled = false;
+                }
+            }
+            
+            // 复制AI评语功能
+            function copyAIComment() {
+                const commentText = aiCommentText.textContent;
+                const timestamp = new Date().toLocaleString('zh-CN');
+                const content = `🤖 AI智能评语\n⏰ 生成时间: ${timestamp}\n\n${commentText}`;
+                
+                copyToClipboard(content, 'AI评语已复制到剪贴板！');
+            }
+            
+            // 显示邮箱联系信息
+            function showEmailContact() {
+                const email = 'smtoffice@yeah.net';
+                
+                // 创建模态框
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                                <i class="fa fa-envelope text-primary mr-2"></i>联系我们
+                            </h3>
+                            <button class="close-modal text-gray-500 hover:text-gray-800">
+                                <i class="fa fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-gray-600 mb-4">如有问题或建议，请联系我们：</p>
+                            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                <div class="flex items-center justify-center space-x-2">
+                                    <i class="fa fa-envelope text-primary"></i>
+                                    <span class="font-mono text-lg">${email}</span>
+                                </div>
+                            </div>
+                            <button class="copy-email-btn bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-lg transition-colors duration-200 flex items-center justify-center mx-auto">
+                                <i class="fa fa-copy mr-2"></i>复制邮箱地址
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                // 绑定事件
+                const closeBtn = modal.querySelector('.close-modal');
+                const copyBtn = modal.querySelector('.copy-email-btn');
+                
+                closeBtn.addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                });
+                
+                copyBtn.addEventListener('click', () => {
+                    copyToClipboard(email, '邮箱地址已复制到剪贴板！');
+                    document.body.removeChild(modal);
+                });
+                
+                // 点击背景关闭
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        document.body.removeChild(modal);
+                    }
+                });
+            }
+            
+            // 显示历史记录功能
+            function showHistoryFeature() {
+                // 创建模态框
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                                <i class="fa fa-history text-primary mr-2"></i>历史记录
+                            </h3>
+                            <button class="close-modal text-gray-500 hover:text-gray-800">
+                                <i class="fa fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        <div class="text-center">
+                            <div class="mb-4">
+                                <i class="fa fa-clock-o text-6xl text-gray-300 mb-4"></i>
+                                <p class="text-gray-600 mb-4">历史记录功能正在开发中...</p>
+                                <p class="text-sm text-gray-500 mb-4">未来版本将支持：</p>
+                                <ul class="text-left text-sm text-gray-600 space-y-2">
+                                    <li class="flex items-center"><i class="fa fa-check text-green-500 mr-2"></i>保存比对历史</li>
+                                    <li class="flex items-center"><i class="fa fa-check text-green-500 mr-2"></i>查看练习进度</li>
+                                    <li class="flex items-center"><i class="fa fa-check text-green-500 mr-2"></i>统计分析报告</li>
+                                    <li class="flex items-center"><i class="fa fa-check text-green-500 mr-2"></i>错误趋势分析</li>
+                                </ul>
+                            </div>
+                            <p class="text-sm text-gray-500 mb-4">如有建议或需求，欢迎联系我们：</p>
+                            <button class="contact-btn bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-lg transition-colors duration-200 flex items-center justify-center mx-auto">
+                                <i class="fa fa-envelope mr-2"></i>联系我们
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                // 绑定事件
+                const closeBtn = modal.querySelector('.close-modal');
+                const contactBtn = modal.querySelector('.contact-btn');
+                
+                closeBtn.addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                });
+                
+                contactBtn.addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                    showEmailContact();
+                });
+                
+                // 点击背景关闭
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        document.body.removeChild(modal);
+                    }
+                });
+            }
+            
+            // 初始化
+            updateWordCount();
+            addKeyboardHints();
+        });
+    </script>
+</body>
+</html>

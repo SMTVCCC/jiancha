@@ -104,6 +104,10 @@
                         <li><span class="text-error font-medium">红色文字</span>：拼写错误或遗漏的内容</li>
                         <li><span class="line-through text-neutral">删除线文字</span>：多出来的内容</li>
                         <li><span class="text-gray-800">正常文字</span>：正确匹配的内容</li>
+                        <li><span class="text-blue-600 font-medium">蓝色文字</span>：正确的标点符号</li>
+                        <li><span class="text-orange-500 bg-orange-50 px-1 rounded">橙色背景</span>：缺失的标点符号（不计错误）</li>
+                        <li><span class="text-purple-600 bg-purple-50 px-1 rounded">紫色背景</span>：错误的标点符号（不计错误）</li>
+                        <li><span class="text-cyan-600 bg-cyan-50 px-1 rounded">青色背景</span>：多余的标点符号（不计错误）</li>
                     </ul>
                 </div>
 
@@ -656,6 +660,11 @@
                     }).join('\n');
                 };
 
+                // 判断是否为标点符号
+                const isPunctuation = (token) => {
+                    return /^[^\w\s]$/.test(token);
+                };
+
                 // 对两边的文本都进行预处理
                 const processedUserText = preprocessText(userText);
                 const processedOriginalText = preprocessText(originalText);
@@ -711,8 +720,9 @@
                 while (i > 0 || j > 0) {
                     if (i > 0 && j > 0 && originalTokens[i - 1].toLowerCase() === userTokens[j - 1].toLowerCase()) {
                         // 匹配成功
+                        const token = originalTokens[i - 1];
                         comparison.unshift({
-                            type: 'match',
+                            type: isPunctuation(token) ? 'punctuation' : 'match',
                             original: originalTokens[i - 1],
                             user: userTokens[j - 1]
                         });
@@ -721,47 +731,89 @@
                         j--;
                     } else if (i > 0 && (j === 0 || matrix[i - 1][j] <= matrix[i][j - 1])) {
                         // 原文有，用户缺失
-                        comparison.unshift({
-                            type: 'missing',
-                            original: originalTokens[i - 1],
-                            user: null
-                        });
-                        errors.missing++;
-                        errors.errorWords.push({
-                            original: originalTokens[i - 1],
-                            user: null,
-                            type: 'missing'
-                        });
+                        const token = originalTokens[i - 1];
+                        if (isPunctuation(token)) {
+                            // 标点符号缺失，不算错误，但用特殊样式显示
+                            comparison.unshift({
+                                type: 'punctuation-missing',
+                                original: originalTokens[i - 1],
+                                user: null
+                            });
+                        } else {
+                            // 普通单词缺失
+                            comparison.unshift({
+                                type: 'missing',
+                                original: originalTokens[i - 1],
+                                user: null
+                            });
+                            errors.missing++;
+                            errors.errorWords.push({
+                                original: originalTokens[i - 1],
+                                user: null,
+                                type: 'missing'
+                            });
+                        }
                         i--;
                     } else if (j > 0 && (i === 0 || matrix[i][j - 1] <= matrix[i - 1][j])) {
                         if (i > 0 && matrix[i][j] === matrix[i - 1][j - 1] + 1) {
-                            // 拼写错误
-                            comparison.unshift({
-                                type: 'spelling',
-                                original: originalTokens[i - 1],
-                                user: userTokens[j - 1]
-                            });
-                            errors.spelling++;
-                            errors.errorWords.push({
-                                original: originalTokens[i - 1],
-                                user: userTokens[j - 1],
-                                type: 'spelling'
-                            });
+                            // 拼写错误或标点符号错误
+                            const originalToken = originalTokens[i - 1];
+                            const userToken = userTokens[j - 1];
+                            
+                            if (isPunctuation(originalToken) && isPunctuation(userToken)) {
+                                // 标点符号错误，不算错误，但用特殊样式显示
+                                comparison.unshift({
+                                    type: 'punctuation-wrong',
+                                    original: originalTokens[i - 1],
+                                    user: userTokens[j - 1]
+                                });
+                            } else if (isPunctuation(originalToken) || isPunctuation(userToken)) {
+                                // 一个是标点一个是单词，按标点处理
+                                comparison.unshift({
+                                    type: 'punctuation-wrong',
+                                    original: originalTokens[i - 1],
+                                    user: userTokens[j - 1]
+                                });
+                            } else {
+                                // 普通拼写错误
+                                comparison.unshift({
+                                    type: 'spelling',
+                                    original: originalTokens[i - 1],
+                                    user: userTokens[j - 1]
+                                });
+                                errors.spelling++;
+                                errors.errorWords.push({
+                                    original: originalTokens[i - 1],
+                                    user: userTokens[j - 1],
+                                    type: 'spelling'
+                                });
+                            }
                             i--;
                             j--;
                         } else {
                             // 用户多出来的内容
-                            comparison.unshift({
-                                type: 'extra',
-                                original: null,
-                                user: userTokens[j - 1]
-                            });
-                            errors.extra++;
-                            errors.errorWords.push({
-                                original: null,
-                                user: userTokens[j - 1],
-                                type: 'extra'
-                            });
+                            const userToken = userTokens[j - 1];
+                            if (isPunctuation(userToken)) {
+                                // 多余的标点符号，不算错误
+                                comparison.unshift({
+                                    type: 'punctuation-extra',
+                                    original: null,
+                                    user: userTokens[j - 1]
+                                });
+                            } else {
+                                // 多余的普通单词
+                                comparison.unshift({
+                                    type: 'extra',
+                                    original: null,
+                                    user: userTokens[j - 1]
+                                });
+                                errors.extra++;
+                                errors.errorWords.push({
+                                    original: null,
+                                    user: userTokens[j - 1],
+                                    type: 'extra'
+                                });
+                            }
                             j--;
                         }
                     }
@@ -973,6 +1025,26 @@
                         case 'match':
                             text = item.user;
                             span.className = 'text-gray-800';
+                            break;
+                        case 'punctuation':
+                            text = item.user;
+                            span.className = 'text-blue-600 font-medium';
+                            span.title = '标点符号正确';
+                            break;
+                        case 'punctuation-missing':
+                            text = item.original;
+                            span.className = 'text-orange-500 bg-orange-50 px-1 rounded';
+                            span.title = '缺失的标点符号（不计入错误）';
+                            break;
+                        case 'punctuation-wrong':
+                            text = item.user;
+                            span.className = 'text-purple-600 bg-purple-50 px-1 rounded';
+                            span.title = `标点符号建议: ${item.original}（不计入错误）`;
+                            break;
+                        case 'punctuation-extra':
+                            text = item.user;
+                            span.className = 'text-cyan-600 bg-cyan-50 px-1 rounded';
+                            span.title = '多余的标点符号（不计入错误）';
                             break;
                         case 'missing':
                             text = item.original;

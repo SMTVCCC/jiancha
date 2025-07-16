@@ -53,10 +53,11 @@
 
 ## 🚀 如何使用
 
-1.  **克隆或下载项目**:
-    ```bash
-    git clone https://github.com/your-username/your-repo.git
-    ```
+1.  **访问在线网站**:
+    
+    您可以直接访问我们的在线网站: [https://tfjt.netlify.app](https://tfjt.netlify.app)
+
+    > 免责声明：本站托管于Netlify的免费服务器上，可能会出现访问速度慢或者暂时无法访问的情况。如遇此类情况，请稍后再试。
 2.  **配置API (重要)**:
     - 打开 `init-spark.js` 文件。
     - 将您的星火大模型 `APPID`, `APISecret`, 和 `APIKey` 填入相应位置。

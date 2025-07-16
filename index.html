@@ -893,22 +893,6 @@
                 const accuracy = ((parseInt(statCorrect.textContent) / parseInt(statOriginalTotal.textContent)) * 100).toFixed(1);
                 content += `准确率: ${accuracy}%\n\n`;
                 
-                // 您的听写内容
-                content += '📖 您的听写内容\n';
-                content += '-'.repeat(30) + '\n';
-                content += userText.value + '\n\n';
-                
-                // 听力原文
-                content += '📄 听力原文\n';
-                content += '-'.repeat(30) + '\n';
-                content += originalText.value + '\n\n';
-                
-                // 比对结果
-                content += '🔍 比对结果\n';
-                content += '-'.repeat(30) + '\n';
-                const comparisonText = generateComparisonText();
-                content += comparisonText.replace('📝 比对结果\n', '') + '\n\n';
-                
                 // AI评语（如果有）
                 const aiCommentElement = document.getElementById('ai-comment-text');
                 if (!aiCommentSection.classList.contains('hidden') && 
@@ -920,12 +904,6 @@
                     content += aiCommentElement.textContent + '\n\n';
                 }
                 
-                // 说明
-                content += '💡 说明\n';
-                content += '-'.repeat(30) + '\n';
-                content += '- 正常文字：正确\n';
-                content += '- 标红文字：错误或遗漏\n';
-                content += '- 删除线文字：多余内容\n\n';
                 content += '© 2025 SMT_Vincent｜所有权保留\n';
                 
                 // 创建并下载TXT文件

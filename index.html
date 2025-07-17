@@ -38,32 +38,51 @@
             .transition-height {
                 transition: max-height 0.3s ease-in-out;
             }
+            .gradient-bg {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            .glass-effect {
+                backdrop-filter: blur(10px);
+                background: rgba(255, 255, 255, 0.9);
+            }
+
+            .btn-gradient {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                transition: all 0.3s ease;
+            }
+            .btn-gradient:hover {
+                background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+                transform: translateY(-1px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            }
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen font-sans flex flex-col">
+<body class="min-h-screen font-sans flex flex-col" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
     <!-- 顶部导航栏 -->
-    <header class="bg-white shadow-md sticky top-0 z-50">
+    <header class="glass-effect shadow-lg sticky top-0 z-50 border-b border-white/20">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <i class="fa fa-headphones text-primary text-2xl"></i>
-                <h1 class="text-[clamp(1.25rem,3vw,1.75rem)] font-bold text-gray-800">托福精听比对系统</h1>
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                    <i class="fa fa-headphones text-white text-lg"></i>
+                </div>
+                <h1 class="text-[clamp(1.25rem,3vw,1.75rem)] font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">托福精听比对系统</h1>
             </div>
 
             <!-- Desktop Menu -->
-            <div class="hidden md:flex items-center space-x-6">
-                <a href="#" id="help-link" class="text-gray-600 hover:text-primary transition-colors duration-200">
-                    <i class="fa fa-question-circle mr-1"></i>使用帮助
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="#" id="help-link" class="px-4 py-2 rounded-full text-gray-700 hover:bg-white/50 hover:text-blue-600 transition-all duration-300 flex items-center">
+                    <i class="fa fa-question-circle mr-2"></i>使用帮助
                 </a>
-                <a href="#" id="history-link" class="text-gray-600 hover:text-primary transition-colors duration-200">
-                    <i class="fa fa-history mr-1"></i>历史记录
+                <a href="#" id="history-link" class="px-4 py-2 rounded-full text-gray-700 hover:bg-white/50 hover:text-blue-600 transition-all duration-300 flex items-center">
+                    <i class="fa fa-history mr-2"></i>历史记录
                 </a>
             </div>
 
             <!-- Mobile Menu Button -->
             <div class="md:hidden">
-                <button id="mobile-menu-btn" class="text-gray-600 hover:text-primary focus:outline-none">
-                    <i class="fa fa-bars text-2xl"></i>
+                <button id="mobile-menu-btn" class="p-2 rounded-full text-gray-700 hover:bg-white/50 hover:text-blue-600 focus:outline-none transition-all duration-300">
+                    <i class="fa fa-bars text-xl"></i>
                 </button>
             </div>
         </div>
@@ -82,7 +101,7 @@
     <!-- 主要内容区 -->
     <main class="container mx-auto px-4 py-8 flex-grow">
         <!-- 介绍卡片 -->
-        <div id="instruction-card" class="bg-white rounded-xl shadow-lg p-6 mb-8 transform hover:shadow-xl transition-shadow duration-300 hidden">
+        <div id="instruction-card" class="glass-effect rounded-2xl shadow-xl p-8 mb-8 border border-white/20 hidden">
             <div class="flex justify-between items-center mb-3">
                 <h2 class="text-xl font-semibold text-gray-800 flex items-center">
                     <i class="fa fa-info-circle text-primary mr-2"></i>使用说明
@@ -209,34 +228,40 @@
         </div>
         
         <!-- 输入区域 -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <!-- 左侧：用户听写内容 -->
-            <div class="bg-white rounded-xl shadow-md p-5 transition-all duration-300 hover:shadow-lg">
-                <label for="user-text" class="block text-lg font-medium text-gray-800 mb-3 flex items-center">
-                    <i class="fa fa-pencil-square-o text-primary mr-2"></i>您的听写内容
+            <div class="glass-effect rounded-2xl shadow-lg p-6 card-hover border border-white/20">
+                <label for="user-text" class="block text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center mr-3">
+                        <i class="fa fa-pencil text-white text-sm"></i>
+                    </div>
+                    您的听写内容
                 </label>
                 <div class="relative">
                     <textarea 
                         id="user-text" 
-                        class="w-full min-h-[12rem] max-h-[32rem] p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 resize-none overflow-y-auto"
+                        class="w-full min-h-[12rem] max-h-[32rem] p-4 border-2 border-gray-200/50 rounded-xl focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all duration-300 resize-none overflow-y-auto bg-white/70 backdrop-blur-sm"
                         placeholder="请在此输入您听写的内容..."></textarea>
-                    <div class="absolute bottom-3 right-3 text-sm text-gray-500">
+                    <div class="absolute bottom-3 right-3 px-2 py-1 bg-white/80 rounded-lg text-sm text-gray-600 backdrop-blur-sm">
                         <span id="user-word-count">0</span> 个字
                     </div>
                 </div>
             </div>
             
             <!-- 右侧：听力原文 -->
-            <div class="bg-white rounded-xl shadow-md p-5 transition-all duration-300 hover:shadow-lg">
-                <label for="original-text" class="block text-lg font-medium text-gray-800 mb-3 flex items-center">
-                    <i class="fa fa-file-text-o text-secondary mr-2"></i>听力原文
+            <div class="glass-effect rounded-2xl shadow-lg p-6 card-hover border border-white/20">
+                <label for="original-text" class="block text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center mr-3">
+                        <i class="fa fa-file-text text-white text-sm"></i>
+                    </div>
+                    听力原文
                 </label>
                 <div class="relative">
                     <textarea 
                         id="original-text" 
-                        class="w-full min-h-[12rem] max-h-[32rem] p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all duration-200 resize-none overflow-y-auto"
+                        class="w-full min-h-[12rem] max-h-[32rem] p-4 border-2 border-gray-200/50 rounded-xl focus:ring-2 focus:ring-green-500/30 focus:border-green-500/50 transition-all duration-300 resize-none overflow-y-auto bg-white/70 backdrop-blur-sm"
                         placeholder="请在此输入听力原文..."></textarea>
-                    <div class="absolute bottom-3 right-3 text-sm text-gray-500">
+                    <div class="absolute bottom-3 right-3 px-2 py-1 bg-white/80 rounded-lg text-sm text-gray-600 backdrop-blur-sm">
                         <span id="original-word-count">0</span> 个字
                     </div>
                 </div>
@@ -244,100 +269,153 @@
         </div>
         
         <!-- 操作按钮 -->
-        <div class="flex flex-col sm:flex-row gap-3 justify-center mb-8 flex-wrap">
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8 flex-wrap">
             <button 
                 id="compare-btn" 
-                class="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 sm:px-8 rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed min-w-[140px]"
+                class="btn-gradient text-white font-semibold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed min-w-[160px] relative overflow-hidden"
                 disabled>
-                <i class="fa fa-exchange mr-2"></i>开始比对
+                <i class="fa fa-exchange mr-3 text-lg"></i>开始比对
             </button>
             <button 
                 id="clear-btn" 
-                class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-6 sm:px-8 rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center min-w-[140px]">
-                <i class="fa fa-trash mr-2"></i>清空内容
+                class="bg-white/80 hover:bg-white text-gray-700 font-semibold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center min-w-[160px] border border-gray-200/50 backdrop-blur-sm">
+                <i class="fa fa-trash mr-3 text-lg"></i>清空内容
             </button>
             <button 
                 id="export-btn" 
-                class="bg-secondary hover:bg-secondary/90 text-white font-medium py-3 px-6 sm:px-8 rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hidden min-w-[140px]"
+                class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hidden min-w-[160px] hover:transform hover:-translate-y-1"
                 disabled>
-                <i class="fa fa-download mr-2"></i>导出TXT
+                <i class="fa fa-download mr-3 text-lg"></i>导出TXT
             </button>
             <button 
                 id="screenshot-btn" 
-                class="bg-purple-500 hover:bg-purple-600 text-white font-medium py-3 px-6 sm:px-8 rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hidden min-w-[140px]"
+                class="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hidden min-w-[160px] hover:transform hover:-translate-y-1"
                 disabled>
-                <i class="fa fa-camera mr-2"></i>截图下载
+                <i class="fa fa-camera mr-3 text-lg"></i>截图下载
             </button>
             <button 
                 id="copy-btn" 
-                class="bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-6 sm:px-8 rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hidden min-w-[140px]"
+                class="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-semibold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hidden min-w-[160px] hover:transform hover:-translate-y-1"
                 disabled>
-                <i class="fa fa-copy mr-2"></i>复制结果
+                <i class="fa fa-copy mr-3 text-lg"></i>复制结果
             </button>
         </div>
         
         <!-- 比对结果 -->
-        <div id="result-section" class="bg-white rounded-xl shadow-md p-6 mb-8 hidden">
-            <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                <i class="fa fa-bar-chart text-warning mr-2"></i>比对结果
+        <div id="result-section" class="glass-effect rounded-2xl shadow-xl p-8 mb-8 border border-white/20 hidden bg-white/90 backdrop-blur-md">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center mr-3">
+                    <i class="fa fa-bar-chart text-white"></i>
+                </div>
+                比对结果
             </h2>
             
             <!-- 统计信息 -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                    <p class="text-sm text-gray-500 mb-1">总字数（原文）</p>
-                    <p id="stat-original-total" class="text-2xl font-bold text-primary">0</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100/50 p-4 rounded-2xl border border-blue-200/50 backdrop-blur-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-sm font-medium text-blue-700">总字数（原文）</p>
+                        <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+                            <i class="fa fa-file-text text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <p id="stat-original-total" class="text-3xl font-bold text-blue-600">0</p>
                 </div>
-                <div class="bg-green-50 p-4 rounded-lg border border-green-100">
-                    <p class="text-sm text-gray-500 mb-1">正确字数</p>
-                    <p id="stat-correct" class="text-2xl font-bold text-secondary">0</p>
+                <div class="bg-gradient-to-br from-green-50 to-green-100/50 p-4 rounded-2xl border border-green-200/50 backdrop-blur-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-sm font-medium text-green-700">正确字数</p>
+                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                            <i class="fa fa-check text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <p id="stat-correct" class="text-3xl font-bold text-green-600">0</p>
                 </div>
-                <div class="bg-red-50 p-4 rounded-lg border border-red-100">
-                    <p class="text-sm text-gray-500 mb-1">错误/遗漏字数</p>
-                    <p id="stat-errors" class="text-2xl font-bold text-error">0</p>
+                <div class="bg-gradient-to-br from-red-50 to-red-100/50 p-4 rounded-2xl border border-red-200/50 backdrop-blur-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-sm font-medium text-red-700">错误/遗漏字数</p>
+                        <div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
+                            <i class="fa fa-times text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <p id="stat-errors" class="text-3xl font-bold text-red-600">0</p>
                 </div>
-                <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
-                    <p class="text-sm text-gray-500 mb-1">多余字数</p>
-                    <p id="stat-extra" class="text-2xl font-bold text-warning">0</p>
+                <div class="bg-gradient-to-br from-yellow-50 to-yellow-100/50 p-4 rounded-2xl border border-yellow-200/50 backdrop-blur-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-sm font-medium text-yellow-700">多余字数</p>
+                        <div class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center">
+                            <i class="fa fa-plus text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <p id="stat-extra" class="text-3xl font-bold text-yellow-600">0</p>
                 </div>
             </div>
             
             <!-- 比对详情 -->
-            <div class="border-t border-gray-200 pt-4">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-lg font-medium text-gray-700">比对详情</h3>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <button id="copy-comparison-btn" class="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-md transition-colors duration-200 flex items-center justify-center">
-                            <i class="fa fa-copy mr-1"></i><span class="hidden sm:inline">复制比对结果</span><span class="sm:hidden">复制比对</span>
-                        </button>
-                        <button id="copy-stats-btn" class="text-sm bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-md transition-colors duration-200 flex items-center justify-center">
-                            <i class="fa fa-chart-bar mr-1"></i><span class="hidden sm:inline">复制统计信息</span><span class="sm:hidden">复制统计</span>
-                        </button>
+            <div class="border-t border-white/20 pt-6">
+                <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
+                    <h3 class="text-xl font-semibold text-gray-800 flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center mr-3">
+                            <i class="fa fa-search text-white text-sm"></i>
+                        </div>
+                        比对详情
+                    </h3>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                        <!-- 正确率显示 -->
+                        <div class="bg-white/80 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/40 shadow-md">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 flex items-center justify-center mr-2">
+                                    <i class="fa fa-check text-white text-xs"></i>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700 mr-2">正确率:</span>
+                                <span id="accuracy-rate" class="text-lg font-bold text-emerald-600">0%</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button id="copy-comparison-btn" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl hover:transform hover:-translate-y-1 font-medium">
+                                <i class="fa fa-copy mr-2"></i><span class="hidden sm:inline">复制比对结果</span><span class="sm:hidden">复制比对</span>
+                            </button>
+                            <button id="copy-stats-btn" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-4 py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl hover:transform hover:-translate-y-1 font-medium">
+                                <i class="fa fa-chart-bar mr-2"></i><span class="hidden sm:inline">复制统计信息</span><span class="sm:hidden">复制统计</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div id="comparison-result" class="p-4 bg-gray-50 rounded-lg min-h-[100px] whitespace-pre-wrap leading-relaxed"></div>
+                <div id="comparison-result" class="p-6 bg-white/80 backdrop-blur-sm rounded-2xl min-h-[120px] whitespace-pre-wrap leading-relaxed border border-white/40 shadow-inner text-gray-800"></div>
             </div>
         </div>
         
         <!-- 分析报告 -->
-        <div id="analysis-section" class="bg-white rounded-xl shadow-md p-6 hidden">
-            <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                <i class="fa fa-line-chart text-primary mr-2"></i>错误分析
+        <div id="analysis-section" class="glass-effect rounded-2xl shadow-xl p-8 mb-8 card-hover border border-white/20 hidden bg-white/90 backdrop-blur-md">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center mr-3">
+                    <i class="fa fa-line-chart text-white"></i>
+                </div>
+                错误分析
             </h2>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- 错误类型分布 -->
-                <div>
-                    <h3 class="text-lg font-medium text-gray-700 mb-3">错误类型分布</h3>
-                    <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/40 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <div class="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mr-2">
+                            <i class="fa fa-pie-chart text-white text-xs"></i>
+                        </div>
+                        错误类型分布
+                    </h3>
+                    <div class="bg-white/90 p-4 rounded-xl shadow-inner border border-gray-100">
                         <canvas id="error-type-chart"></canvas>
                     </div>
                 </div>
                 
                 <!-- 常见错误单词 -->
-                <div>
-                    <h3 class="text-lg font-medium text-gray-700 mb-3">常见错误单词</h3>
-                    <div class="bg-gray-50 p-4 rounded-lg max-h-[300px] overflow-y-auto">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/40 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <div class="w-6 h-6 rounded-full bg-gradient-to-r from-red-500 to-orange-500 flex items-center justify-center mr-2">
+                            <i class="fa fa-list text-white text-xs"></i>
+                        </div>
+                        常见错误单词
+                    </h3>
+                    <div class="bg-white/90 p-4 rounded-xl max-h-[300px] overflow-y-auto shadow-inner border border-gray-100">
                         <ul id="common-errors" class="space-y-2">
                             <!-- 动态填充 -->
                         </ul>
@@ -347,33 +425,36 @@
         </div>
         
         <!-- AI评语区域 -->
-        <div id="ai-comment-section" class="bg-white rounded-xl shadow-md p-6 mb-8 hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold text-gray-800 flex items-center">
-                    <i class="fa fa-robot text-purple-600 mr-2"></i>AI智能评语
+        <div id="ai-comment-section" class="glass-effect rounded-2xl shadow-xl p-8 mb-8 card-hover border border-white/20 hidden bg-white/90 backdrop-blur-md">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center mr-3">
+                        <i class="fa fa-robot text-white"></i>
+                    </div>
+                    AI智能评语
                 </h2>
                 <button 
                     id="generate-ai-comment-btn" 
-                    class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center disabled:opacity-50 disabled:cursor-not-allowed hover:transform hover:-translate-y-1"
                     disabled>
                     <i class="fa fa-magic mr-2"></i>生成AI评语
                 </button>
             </div>
             
-            <div id="ai-comment-content" class="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg min-h-[120px] border border-purple-100">
+            <div id="ai-comment-content" class="bg-white/80 backdrop-blur-sm p-6 rounded-2xl min-h-[140px] border border-white/40 shadow-inner">
                 <div id="ai-comment-loading" class="hidden flex items-center justify-center py-8">
                     <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mr-3"></div>
                     <span class="text-purple-600 font-medium">AI正在分析您的听写情况...</span>
                 </div>
-                <div id="ai-comment-text" class="text-gray-600 leading-relaxed whitespace-pre-wrap">
+                <div id="ai-comment-text" class="text-gray-800 leading-relaxed whitespace-pre-wrap">
                     点击"生成AI评语"按钮，让AI为您的听写表现提供专业的分析和建议。
                 </div>
             </div>
             
-            <div class="flex justify-end mt-4 space-x-3">
+            <div class="flex justify-end mt-6 space-x-3">
                 <button 
                     id="copy-ai-comment-btn" 
-                    class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center disabled:opacity-50 disabled:cursor-not-allowed hidden"
+                    class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center disabled:opacity-50 disabled:cursor-not-allowed hover:transform hover:-translate-y-1 hidden"
                     disabled>
                     <i class="fa fa-copy mr-2"></i>复制评语
                 </button>
@@ -382,29 +463,34 @@
     </main>
 
     <!-- 页脚 -->
-    <footer class="bg-gray-800 text-white py-8 mt-auto">
-        <div class="container mx-auto px-4">
+    <footer class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white py-12 mt-auto relative overflow-hidden">
+        <div class="absolute inset-0 bg-black/20"></div>
+        <div class="container mx-auto px-4 relative z-10">
             <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="mb-4 md:mb-0">
+                <div class="mb-6 md:mb-0">
                     <div class="flex items-center justify-center md:justify-start">
-                        <i class="fa fa-headphones text-primary text-xl mr-2"></i>
-                        <span class="font-bold text-lg">托福精听比对系统</span>
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center mr-3">
+                            <i class="fa fa-headphones text-white text-lg"></i>
+                        </div>
+                        <span class="font-bold text-xl bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">托福精听比对系统</span>
                     </div>
-                    <p class="text-gray-400 text-sm mt-2 text-center md:text-left">助力托福听力练习，提升听写准确性</p>
+                    <p class="text-gray-300 text-sm mt-3 text-center md:text-left">助力托福听力练习，提升听写准确性</p>
                 </div>
                 
-                <div class="flex space-x-6">
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
-                        <i class="fa fa-question-circle"></i> 帮助中心
+                <div class="flex space-x-8">
+                    <a href="#" class="text-gray-300 hover:text-white transition-all duration-300 hover:transform hover:-translate-y-1 flex items-center">
+                        <i class="fa fa-question-circle mr-2"></i> 帮助中心
                     </a>
-                    <a href="#" id="contact-us-link" class="text-gray-400 hover:text-white transition-colors duration-200">
-                        <i class="fa fa-envelope"></i> 联系我们
+                    <a href="#" id="contact-us-link" class="text-gray-300 hover:text-white transition-all duration-300 hover:transform hover:-translate-y-1 flex items-center">
+                        <i class="fa fa-envelope mr-2"></i> 联系我们
                     </a>
                 </div>
             </div>
             
-            <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-400 text-sm">
-                &copy;2025 SMT_Vincent｜所有权保留
+            <div class="border-t border-gray-600/50 mt-8 pt-8 text-center text-gray-400 text-sm">
+                <div class="bg-white/5 backdrop-blur-sm rounded-xl py-4 px-6 inline-block">
+                    &copy;2025 SMT_Vincent｜所有权保留
+                </div>
             </div>
         </div>
     </footer>
@@ -662,7 +748,7 @@
 
                 // 判断是否为标点符号
                 const isPunctuation = (token) => {
-                    return /^[^\w\s]$/.test(token);
+                    return /^[\p{P}\p{S}]$/u.test(token);
                 };
 
                 // 对两边的文本都进行预处理
@@ -712,110 +798,72 @@
                     spelling: 0,
                     missing: 0,
                     extra: 0,
-                    totalOriginal: originalTokens.length,
+                    totalOriginal: originalTokens.filter(t => !isPunctuation(t)).length,
                     correct: 0,
                     errorWords: []
                 };
                 
                 while (i > 0 || j > 0) {
-                    if (i > 0 && j > 0 && originalTokens[i - 1].toLowerCase() === userTokens[j - 1].toLowerCase()) {
-                        // 匹配成功
-                        const token = originalTokens[i - 1];
-                        comparison.unshift({
-                            type: isPunctuation(token) ? 'punctuation' : 'match',
-                            original: originalTokens[i - 1],
-                            user: userTokens[j - 1]
-                        });
-                        errors.correct++;
+                    const originalToken = i > 0 ? originalTokens[i - 1] : null;
+                    const userToken = j > 0 ? userTokens[j - 1] : null;
+                
+                    const cost = (i > 0 && j > 0 && originalTokens[i - 1].toLowerCase() === userTokens[j - 1].toLowerCase()) ? 0 : 1;
+                
+                    // 优先处理匹配
+                    if (i > 0 && j > 0 && cost === 0) {
+                        const type = isPunctuation(originalToken) ? 'punctuation' : 'match';
+                        comparison.unshift({ type: type, original: originalToken, user: userToken });
+                        if (type === 'match') errors.correct++;
                         i--;
                         j--;
-                    } else if (i > 0 && (j === 0 || matrix[i - 1][j] <= matrix[i][j - 1])) {
-                        // 原文有，用户缺失
-                        const token = originalTokens[i - 1];
-                        if (isPunctuation(token)) {
-                            // 标点符号缺失，不算错误，但用特殊样式显示
-                            comparison.unshift({
-                                type: 'punctuation-missing',
-                                original: originalTokens[i - 1],
-                                user: null
-                            });
+                        continue;
+                    }
+                
+                    // 确定操作：替换、插入或删除
+                    const subCost = (i > 0 && j > 0) ? matrix[i - 1][j - 1] : Infinity;
+                    const insCost = (j > 0) ? matrix[i][j - 1] : Infinity;
+                    const delCost = (i > 0) ? matrix[i - 1][j] : Infinity;
+                
+                    if (subCost <= insCost && subCost <= delCost) {
+                        // 替换
+                        const originalIsPunctuation = isPunctuation(originalToken);
+                        const userIsPunctuation = isPunctuation(userToken);
+                        let type;
+                        if (originalIsPunctuation && userIsPunctuation) {
+                            type = 'punctuation-wrong';
+                        } else if (originalIsPunctuation) {
+                            type = 'punctuation-missing'; // 实际上是替换成了单词
+                        } else if (userIsPunctuation) {
+                            type = 'punctuation-extra'; // 实际上是单词替换成了标点
                         } else {
-                            // 普通单词缺失
-                            comparison.unshift({
-                                type: 'missing',
-                                original: originalTokens[i - 1],
-                                user: null
-                            });
-                            errors.missing++;
-                            errors.errorWords.push({
-                                original: originalTokens[i - 1],
-                                user: null,
-                                type: 'missing'
-                            });
+                            type = 'spelling';
+                        }
+                
+                        comparison.unshift({ type: type, original: originalToken, user: userToken });
+                        if (type === 'spelling') {
+                            errors.spelling++;
+                            errors.errorWords.push({ original: originalToken, user: userToken, type: 'spelling' });
                         }
                         i--;
-                    } else if (j > 0 && (i === 0 || matrix[i][j - 1] <= matrix[i - 1][j])) {
-                        if (i > 0 && matrix[i][j] === matrix[i - 1][j - 1] + 1) {
-                            // 拼写错误或标点符号错误
-                            const originalToken = originalTokens[i - 1];
-                            const userToken = userTokens[j - 1];
-                            
-                            if (isPunctuation(originalToken) && isPunctuation(userToken)) {
-                                // 标点符号错误，不算错误，但用特殊样式显示
-                                comparison.unshift({
-                                    type: 'punctuation-wrong',
-                                    original: originalTokens[i - 1],
-                                    user: userTokens[j - 1]
-                                });
-                            } else if (isPunctuation(originalToken) || isPunctuation(userToken)) {
-                                // 一个是标点一个是单词，按标点处理
-                                comparison.unshift({
-                                    type: 'punctuation-wrong',
-                                    original: originalTokens[i - 1],
-                                    user: userTokens[j - 1]
-                                });
-                            } else {
-                                // 普通拼写错误
-                                comparison.unshift({
-                                    type: 'spelling',
-                                    original: originalTokens[i - 1],
-                                    user: userTokens[j - 1]
-                                });
-                                errors.spelling++;
-                                errors.errorWords.push({
-                                    original: originalTokens[i - 1],
-                                    user: userTokens[j - 1],
-                                    type: 'spelling'
-                                });
-                            }
-                            i--;
-                            j--;
-                        } else {
-                            // 用户多出来的内容
-                            const userToken = userTokens[j - 1];
-                            if (isPunctuation(userToken)) {
-                                // 多余的标点符号，不算错误
-                                comparison.unshift({
-                                    type: 'punctuation-extra',
-                                    original: null,
-                                    user: userTokens[j - 1]
-                                });
-                            } else {
-                                // 多余的普通单词
-                                comparison.unshift({
-                                    type: 'extra',
-                                    original: null,
-                                    user: userTokens[j - 1]
-                                });
-                                errors.extra++;
-                                errors.errorWords.push({
-                                    original: null,
-                                    user: userTokens[j - 1],
-                                    type: 'extra'
-                                });
-                            }
-                            j--;
+                        j--;
+                    } else if (insCost <= delCost) {
+                        // 插入
+                        const type = isPunctuation(userToken) ? 'punctuation-extra' : 'extra';
+                        comparison.unshift({ type: type, original: null, user: userToken });
+                        if (type === 'extra') {
+                            errors.extra++;
+                            errors.errorWords.push({ original: null, user: userToken, type: 'extra' });
                         }
+                        j--;
+                    } else {
+                        // 删除
+                        const type = isPunctuation(originalToken) ? 'punctuation-missing' : 'missing';
+                        comparison.unshift({ type: type, original: originalToken, user: null });
+                        if (type === 'missing') {
+                            errors.missing++;
+                            errors.errorWords.push({ original: originalToken, user: null, type: 'missing' });
+                        }
+                        i--;
                     }
                 }
                 
@@ -831,14 +879,15 @@
                 const correct = statCorrect.textContent;
                 const errors = statErrors.textContent;
                 const extra = statExtra.textContent;
-                const accuracy = ((parseInt(correct) / parseInt(originalTotal)) * 100).toFixed(1);
+                const accuracyElement = document.getElementById('accuracy-rate');
+                const accuracy = accuracyElement ? accuracyElement.textContent : '0.0%';
                 
                 return `📊 统计信息\n` +
                        `原文总字数: ${originalTotal}\n` +
                        `✅ 正确字数: ${correct}\n` +
                        `❌ 错误/遗漏字数: ${errors}\n` +
                        `➕ 多余字数: ${extra}\n` +
-                       `🎯 准确率: ${accuracy}%`;
+                       `🎯 准确率: ${accuracy}`;
             }
             
             // 生成比对结果文本（纯文本格式）
@@ -974,7 +1023,6 @@
             
             // 截图并下载功能
             function captureAndDownloadScreenshot() {
-                // 获取要截图的区域（只截图比对详情区域）
                 const captureArea = document.getElementById('result-section');
                 
                 if (!captureArea || captureArea.classList.contains('hidden')) {
@@ -982,24 +1030,39 @@
                     return;
                 }
                 
-                // 显示加载提示
                 showToast('正在生成截图...', 'info');
-                
-                // 使用html2canvas截图
+
+                // 截图前移除可能导致问题的样式
+                const originalClassName = captureArea.className;
+                const originalPosition = captureArea.style.position;
+                captureArea.classList.remove('glass-effect', 'backdrop-blur-md');
+                // 设置一个临时的、不透明的背景色以便截图
+                captureArea.style.backgroundColor = '#f5f7fa';
+
+                // 创建并添加水印元素
+                const watermarkElement = document.createElement('div');
+                watermarkElement.textContent = 'https://tfjt.netlify.app';
+                watermarkElement.style.position = 'absolute';
+                watermarkElement.style.top = '20px';
+                watermarkElement.style.left = '50%';
+                watermarkElement.style.transform = 'translateX(-50%)';
+                watermarkElement.style.fontSize = '24px';
+                watermarkElement.style.fontWeight = 'bold';
+                watermarkElement.style.color = 'rgba(0, 0, 0, 0.25)';
+                watermarkElement.style.fontFamily = 'Arial, sans-serif';
+                watermarkElement.style.zIndex = '9999';
+                captureArea.style.position = 'relative'; // 确保水印相对于父元素定位
+                captureArea.appendChild(watermarkElement);
+
                 html2canvas(captureArea, {
-                    backgroundColor: '#ffffff',
-                    scale: 2, // 提高清晰度
+                    scale: 2,
                     useCORS: true,
-                    allowTaint: true,
-                    scrollX: 0,
-                    scrollY: 0
+                    backgroundColor: null, // 使用元素自己的背景
                 }).then(canvas => {
-                    // 创建下载链接
                     const link = document.createElement('a');
                     link.download = `托福精听比对详情_${new Date().toISOString().slice(0, 10)}.png`;
                     link.href = canvas.toDataURL('image/png');
                     
-                    // 触发下载
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
@@ -1008,6 +1071,14 @@
                 }).catch(error => {
                     console.error('截图失败:', error);
                     showToast('截图失败，请重试', 'error');
+                }).finally(() => {
+                    // 截图后恢复原始样式并移除水印
+                    captureArea.className = originalClassName;
+                    captureArea.style.backgroundColor = '';
+                    captureArea.style.position = originalPosition;
+                    if (watermarkElement.parentNode === captureArea) {
+                        captureArea.removeChild(watermarkElement);
+                    }
                 });
             }
             
@@ -1075,6 +1146,27 @@
                 statCorrect.textContent = result.errors.correct;
                 statErrors.textContent = result.errors.spelling + result.errors.missing;
                 statExtra.textContent = result.errors.extra;
+                
+                // 计算并更新正确率
+                const accuracyRate = document.getElementById('accuracy-rate');
+                const accuracy = result.errors.totalOriginal > 0 
+                    ? ((result.errors.correct / result.errors.totalOriginal) * 100).toFixed(1)
+                    : '0.0';
+                accuracyRate.textContent = accuracy + '%';
+                
+                // 根据正确率调整颜色
+                accuracyRate.className = 'text-lg font-bold ';
+                if (parseFloat(accuracy) >= 90) {
+                    accuracyRate.className += 'text-emerald-600';
+                } else if (parseFloat(accuracy) >= 80) {
+                    accuracyRate.className += 'text-green-600';
+                } else if (parseFloat(accuracy) >= 70) {
+                    accuracyRate.className += 'text-yellow-600';
+                } else if (parseFloat(accuracy) >= 60) {
+                    accuracyRate.className += 'text-orange-600';
+                } else {
+                    accuracyRate.className += 'text-red-600';
+                }
                 
                 // 显示结果区域
                 resultSection.classList.remove('hidden');

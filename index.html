@@ -735,6 +735,34 @@
                 resultSection.scrollIntoView({ behavior: 'smooth' });
             });
             
+            function calculateLevenshteinDistance(a, b) {
+                if (a.length === 0) return b.length;
+                if (b.length === 0) return a.length;
+
+                const matrix = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(null));
+
+                for (let i = 0; i <= a.length; i++) {
+                    matrix[0][i] = i;
+                }
+
+                for (let j = 0; j <= b.length; j++) {
+                    matrix[j][0] = j;
+                }
+
+                for (let j = 1; j <= b.length; j++) {
+                    for (let i = 1; i <= a.length; i++) {
+                        const indicator = a[i - 1] === b[j - 1] ? 0 : 1;
+                        matrix[j][i] = Math.min(
+                            matrix[j][i - 1] + 1, // deletion
+                            matrix[j - 1][i] + 1, // insertion
+                            matrix[j - 1][i - 1] + indicator, // substitution
+                        );
+                    }
+                }
+
+                return matrix[b.length][a.length];
+            }
+
             // 文本比对核心函数
             function compareTexts(userText, originalText) {
                 // 预处理函数，用于移除每行开头的 "讲述人: " 标记
@@ -829,20 +857,41 @@
                         const originalIsPunctuation = isPunctuation(originalToken);
                         const userIsPunctuation = isPunctuation(userToken);
                         let type;
+
                         if (originalIsPunctuation && userIsPunctuation) {
                             type = 'punctuation-wrong';
+                            comparison.unshift({ type: type, original: originalToken, user: userToken });
                         } else if (originalIsPunctuation) {
-                            type = 'punctuation-missing'; // 实际上是替换成了单词
+                            // 原文是标点，用户是单词 -> 遗漏标点 + 多余单词
+                            comparison.unshift({ type: 'extra', original: null, user: userToken });
+                            comparison.unshift({ type: 'punctuation-missing', original: originalToken, user: null });
+                            errors.extra++;
+                            // 标点错误不计入核心统计
                         } else if (userIsPunctuation) {
-                            type = 'punctuation-extra'; // 实际上是单词替换成了标点
+                            // 原文是单词，用户是标点 -> 遗漏单词 + 多余标点
+                            comparison.unshift({ type: 'punctuation-extra', original: null, user: userToken });
+                            comparison.unshift({ type: 'missing', original: originalToken, user: null });
+                            errors.missing++;
+                            errors.errorWords.push({ original: originalToken, user: null, type: 'missing' });
                         } else {
-                            type = 'spelling';
-                        }
-                
-                        comparison.unshift({ type: type, original: originalToken, user: userToken });
-                        if (type === 'spelling') {
-                            errors.spelling++;
-                            errors.errorWords.push({ original: originalToken, user: userToken, type: 'spelling' });
+                            // 都是单词，进行Levenshtein距离判断
+                            const distance = calculateLevenshteinDistance(originalToken.toLowerCase(), userToken.toLowerCase());
+                            const threshold = Math.max(1, Math.floor(originalToken.length / 4)); // 更严格的阈值
+
+                            if (distance > 0 && distance <= threshold) {
+                                type = 'spelling';
+                                comparison.unshift({ type: type, original: originalToken, user: userToken });
+                                errors.spelling++;
+                                errors.errorWords.push({ original: originalToken, user: userToken, type: 'spelling' });
+                            } else {
+                                // 距离太大，视为删除+插入
+                                comparison.unshift({ type: 'extra', original: null, user: userToken });
+                                comparison.unshift({ type: 'missing', original: originalToken, user: null });
+                                errors.extra++;
+                                errors.missing++;
+                                errors.errorWords.push({ original: originalToken, user: null, type: 'missing' });
+                                errors.errorWords.push({ original: null, user: userToken, type: 'extra' });
+                            }
                         }
                         i--;
                         j--;
@@ -1141,7 +1190,7 @@
                             break;
                         case 'missing':
                             text = item.original;
-                            span.className = 'text-error font-bold bg-red-50 px-1 rounded line-through';
+                            span.className = 'text-error font-bold bg-red-50 px-1 rounded';
                             span.dataset.type = 'missing';
                             break;
                         case 'spelling':
@@ -1152,7 +1201,7 @@
                             break;
                         case 'extra':
                             text = item.user;
-                            span.className = 'text-neutral bg-gray-100 px-1 rounded underline decoration-wavy';
+                            span.className = 'text-neutral line-through bg-gray-100 px-1 rounded';
                             span.dataset.type = 'extra';
                             break;
                     }

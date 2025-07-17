@@ -890,10 +890,24 @@
                        `🎯 准确率: ${accuracy}`;
             }
             
-            // 生成比对结果文本（纯文本格式）
+            // 生成带符号的比对结果文本（纯文本格式），用于复制
             function generateComparisonText() {
-                const comparisonText = comparisonResult.textContent;
-                return `📝 比对结果\n${comparisonText}`;
+                let text = '';
+                comparisonResult.childNodes.forEach(node => {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        text += node.textContent;
+                    } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'SPAN') {
+                        const type = node.dataset.type;
+                        if (type === 'missing') {
+                            text += `【${node.textContent}】`;
+                        } else if (type === 'extra') {
+                            text += `++${node.textContent}++`;
+                        } else {
+                            text += node.textContent;
+                        }
+                    }
+                });
+                return `📝 比对结果\n${text}`;
             }
             
             // 复制所有结果
@@ -902,11 +916,11 @@
                 const originalInput = originalText.value;
                 const timestamp = new Date().toLocaleString('zh-CN');
                 
+                const legend = `图例说明：\n【】: 表示缺失的内容\n++: 表示多余的内容\n\n`;
                 const content = `🎧 托福精听比对结果\n` +
                                `⏰ 时间: ${timestamp}\n\n` +
                                generateStatisticsText() + '\n\n' +
-                               `📖 您的听写内容\n${userInput}\n\n` +
-                               `📄 听力原文\n${originalInput}\n\n` +
+                               legend +
                                generateComparisonText();
                 
                 copyToClipboard(content, '完整结果已复制到剪贴板！');
@@ -914,7 +928,8 @@
             
             // 复制比对结果
             function copyComparisonResults() {
-                const content = generateComparisonText();
+                const legend = `图例说明：\n【】: 表示缺失的内容\n++: 表示多余的内容\n\n`;
+                const content = legend + generateComparisonText();
                 copyToClipboard(content, '比对结果已复制到剪贴板！');
             }
             
@@ -994,6 +1009,13 @@
                 const accuracy = ((parseInt(statCorrect.textContent) / parseInt(statOriginalTotal.textContent)) * 100).toFixed(1);
                 content += `准确率: ${accuracy}%\n\n`;
                 
+                // 比对详情
+                const legend = `图例说明：\n【】: 表示缺失的内容\n++: 表示多余的内容\n\n`;
+                content += '🔍 比对详情\n';
+                content += '-'.repeat(30) + '\n';
+                content += legend;
+                content += generateComparisonText().replace('📝 比对结果\n', '') + '\n\n';
+
                 // AI评语（如果有）
                 const aiCommentElement = document.getElementById('ai-comment-text');
                 if (!aiCommentSection.classList.contains('hidden') && 
@@ -1119,7 +1141,8 @@
                             break;
                         case 'missing':
                             text = item.original;
-                            span.className = 'text-error font-bold bg-red-50 px-1 rounded';
+                            span.className = 'text-error font-bold bg-red-50 px-1 rounded line-through';
+                            span.dataset.type = 'missing';
                             break;
                         case 'spelling':
                             text = item.user;
@@ -1129,7 +1152,8 @@
                             break;
                         case 'extra':
                             text = item.user;
-                            span.className = 'text-neutral line-through bg-gray-100 px-1 rounded';
+                            span.className = 'text-neutral bg-gray-100 px-1 rounded underline decoration-wavy';
+                            span.dataset.type = 'extra';
                             break;
                     }
                     

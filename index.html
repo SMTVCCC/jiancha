@@ -695,6 +695,9 @@
                 // 比对文本
                 const result = compareTexts(userInput, originalInput);
                 
+                // 保存比对结果到全局变量，供AI评语生成使用
+                window.lastComparisonResult = result;
+                
                 // 显示结果
                 displayResults(result);
                 
@@ -1386,6 +1389,39 @@
                 const extra = parseInt(statExtra.textContent);
                 const accuracy = ((correct / originalTotal) * 100).toFixed(1);
                 
+                // 收集常见错误单词信息
+                let errorWordsInfo = '';
+                if (window.lastComparisonResult && window.lastComparisonResult.errors.errorWords.length > 0) {
+                    const errorWords = window.lastComparisonResult.errors.errorWords.slice(0, 15); // 取前15个错误
+                    
+                    const spellingErrors = errorWords.filter(e => e.type === 'spelling');
+                    const missingWords = errorWords.filter(e => e.type === 'missing');
+                    const extraWords = errorWords.filter(e => e.type === 'extra');
+                    
+                    errorWordsInfo = '\n\n学生常见错误单词详情：';
+                    
+                    if (spellingErrors.length > 0) {
+                        errorWordsInfo += '\n\n拼写错误：';
+                        spellingErrors.forEach(error => {
+                            errorWordsInfo += `\n- 学生写成"${error.user}"，正确应为"${error.original}"`;
+                        });
+                    }
+                    
+                    if (missingWords.length > 0) {
+                        errorWordsInfo += '\n\n遗漏单词：';
+                        missingWords.forEach(error => {
+                            errorWordsInfo += `\n- 遗漏了"${error.original}"`;
+                        });
+                    }
+                    
+                    if (extraWords.length > 0) {
+                        errorWordsInfo += '\n\n多余单词：';
+                        extraWords.forEach(error => {
+                            errorWordsInfo += `\n- 多写了"${error.user}"`;
+                        });
+                    }
+                }
+                
                 // 构建AI分析的prompt
                 const prompt = `请作为一名专业的托福听力教师，分析学生的听写表现并给出建议。
 
@@ -1394,15 +1430,15 @@
 - 正确字数：${correct}
 - 错误/遗漏字数：${errors}
 - 多余字数：${extra}
-- 准确率：${accuracy}%
+- 准确率：${accuracy}%${errorWordsInfo}
 
 请从以下几个方面给出评价和建议：
 1. 整体表现评价
-2. 具体问题分析
-3. 改进建议
+2. 具体问题分析（请重点分析上述错误单词的规律和特点）
+3. 针对性改进建议（基于具体的错误单词给出建议）
 4. 练习方法推荐
 
-请用温和、鼓励的语气，给出具体可行的建议，字数控制在200-300字。`;
+请用温和、鼓励的语气，给出具体可行的建议，字数控制在300-400字。`;
                 
                 // 设置API响应回调
                 if (window.sparkAPI) {
